@@ -39,17 +39,16 @@ public:
 		}
 	}
 
-	Matrix<T> makeSymmetric(bool fromUpperTri = true) const {
-		Matrix m(*this);
-		for (unsigned r = 0; r < rows; r++) {
-			for (unsigned c = r; c < columns; c++) {
+	Matrix<T>& makeSymmetric(bool fromUpperTri = true) {
+		for (unsigned i = 0; i < rows; i++) {
+			for (unsigned j = i+1; j < columns; j++) {
 				if (fromUpperTri)
-					m.entries[c][r] = entries[r][c];
+					entries[j][i] = entries[i][j];
 				else
-					m.entries[r][c] = entries[c][r];
+					entries[i][j] = entries[j][i];
 			}
 		}
-		return m;
+		return *this;
 	}
 	Matrix<T> transpose() const {
 		Matrix m(columns, rows);
@@ -60,7 +59,8 @@ public:
 		}
 		return m;
 	}
-	Matrix<T> invertSymmetric() {
+
+	Matrix<T> invertSymmetric() const {
 		Matrix<T> A(rows, columns * 2); // augmented matrix (this | 1)
 		Matrix<T> L(rows, rows); // Lower triangular
 		Matrix<T> DI(rows, rows); // Diagonal Inverse
@@ -72,9 +72,8 @@ public:
 
 		A = A.reduce();
 		for (unsigned r = 0; r < rows; r++) {
-			for (unsigned c = 0; c < columns; c++) {
+			for (unsigned c = 0; c < columns; c++)
 				L.entries[r][c] = A.entries[r][c + rows];
-			}
 
 			if (A.entries[r][r] == T(0))
 				continue;
@@ -84,7 +83,7 @@ public:
 		return L.transpose() * DI * L;
 	}
 
-	Matrix<T> operator*(const Matrix<T> A) {
+	Matrix<T> operator*(const Matrix<T> A) const {
 		Matrix<T> M(rows, A.columns);
 		for (unsigned r = 0; r < rows; r++) {
 			for (unsigned c = 0; c < A.columns; c++) {
@@ -98,28 +97,27 @@ public:
 		return M;
 	}
 
-	Matrix<T> reduce() {
-		Matrix<T> reduced(*this);
+	Matrix<T>& reduce() {
 		unsigned int col = 0;
 		for (unsigned int r = 0; r < rows - 1; r++) {
 			col = r;
-			while (reduced[r][col] == T(0) && col < columns)
+			while (entries[r][col] == T(0) && col < columns)
 				col++;
 			if (col == columns)
 				continue;
 
 			for (unsigned int c_row = r + 1; c_row < rows; c_row++) {
-				if (reduced[c_row][col] == T(0))
+				if (entries[c_row][col] == T(0))
 					continue;
 
-				T factor(-reduced[c_row][col] / reduced[r][col]);
+				T factor(-entries[c_row][col] / entries[r][col]);
 				for (unsigned int c = col + 1; c < columns; c++)
-					reduced[c_row][c] += factor * reduced[r][c];
+					entries[c_row][c] += factor * entries[r][c];
 
-				reduced[c_row][col] = T(0);
+				entries[c_row][col] = T(0);
 			}
 		}
-		return reduced;
+		return *this;
 	}
 
 	T* const & operator[](unsigned index) { return entries[index]; }
