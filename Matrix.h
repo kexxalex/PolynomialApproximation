@@ -4,7 +4,7 @@
 template<class T> class Matrix {
 public:
 	Matrix(unsigned int r, unsigned int c, const std::vector<T>& values) : rows(r), columns(c) {
-		entries = new T* [rows];
+		entries = new T*[rows];
 		for (unsigned _r = 0; _r < rows; _r++) {
 			entries[_r] = new T[columns];
 			for (unsigned _c = 0; _c < columns; _c++) {
@@ -14,14 +14,14 @@ public:
 	}
 
 	Matrix(unsigned int r, unsigned int c) : rows(r), columns(c) {
-		entries = new T * [rows];
+		entries = new T*[rows];
 		for (unsigned _r = 0; _r < rows; _r++) {
 			entries[_r] = new T[columns]{ 0 };
 		}
 	}
 
 	Matrix(const Matrix<T>& m) : rows(m.rows), columns(m.columns) {
-		entries = new T * [rows];
+		entries = new T*[rows];
 		for (unsigned r = 0; r < rows; r++) {
 			entries[r] = new T[columns];
 			for (unsigned c = 0; c < columns; c++)
